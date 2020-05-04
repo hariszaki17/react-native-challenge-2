@@ -1,0 +1,27 @@
+import { SET_BOARD, SET_CURRENT_TILE, SET_BOARD_BASE, SET_STATUS } from "../actions";
+
+const initialState = {
+    board: [],
+    boardBase: [],
+    currentTile: {
+        x: 0,
+        y: 0
+    },
+    status: '-'
+}
+
+const reducer = (state = initialState, action) => {
+    const { type, payload } = action
+    if ( type === SET_BOARD ) {
+        return { ...state, board: payload }
+    } else if ( type === SET_CURRENT_TILE ) {
+        return { ...state, currentTile: payload }
+    } else if ( type === SET_BOARD_BASE ) {
+        return { ...state, boardBase: payload }
+    } else if ( type === SET_STATUS ) {
+        return { ...state, status: payload }
+    }
+    return state
+}
+
+export default reducer
