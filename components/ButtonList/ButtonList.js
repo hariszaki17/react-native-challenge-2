@@ -16,7 +16,9 @@ export default ButtonList = (props) => {
     return (
         <View style={styles.container}>
             { items.map((item, index) => {
-                return <TouchableOpacity onPress={() => { handlePress(index) }} style={styles.btnStyle} key={item}><Text>{index}</Text></TouchableOpacity>
+                return <TouchableOpacity onPress={() => { handlePress(index) }} style={styles.btnStyle} key={item}>
+                    <Text style={styles.text}>{index}</Text>
+                    </TouchableOpacity>
             }) }
         </View>
     )
@@ -45,6 +47,14 @@ const styles = StyleSheet.create({
         margin: 3,
         width: '18%',
         height: '45%',
-        backgroundColor: 'yellow'
+        backgroundColor: 'yellow',
+        borderRadius: 5
+    },
+    text: {
+        fontSize: 20,
+        fontFamily: 'font1',
+        textAlign: 'center',
+        width: '100%',
+        paddingTop: 4
     }
 });
