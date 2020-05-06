@@ -12,7 +12,8 @@ import AppNavigator from './Navigation/Navigator';
 const fetchFont = () => {
   return Font.loadAsync({
     //font1 or 2 can be any name. This'll be used in font-family
-    font1: require('./assets/fonts/BalooBhaina2-Regular.ttf')
+    font1: require('./assets/fonts/BalooBhaina2-Regular.ttf'),
+    font2: require('./assets/fonts/BalooBhaina2-Bold.ttf')
 });
 }
 
@@ -28,13 +29,6 @@ export default function App() {
         </AppLoading>
       )
     }
-    // useEffect(async () => {
-    //   await Font.loadAsync({
-    //     //font1 or 2 can be any name. This'll be used in font-family
-    //     font1: require('./assets/fonts/BalooBhaina2-Regular.ttf')
-    // });
-    // setFontsLoaded(true)
-    // }, [])
     return (
       <Provider store={store}>
         <IconRegistry icons={EvaIconsPack}/>

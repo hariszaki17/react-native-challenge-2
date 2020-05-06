@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBoard, setCurrentTile } from "../../store/actions";
+import { fetchBoard, count } from "../../store/actions";
 import { Layout, Spinner } from '@ui-kitten/components';
+import Tile from '../../components/Tile/Tile'
 
 export default function Board(props) {
     const dispatch = useDispatch()
     const [tiles, setTiles] = useState([])
     const isLoading = useSelector(state => state.fetchBoardLoading)
     const difficulty = useSelector(state => state.difficulty)
-    const handlePress = (index) => {
-        const axis = index.split(',')
-        console.log(index)
-        const payload = {
-            x: +axis[0],
-            y: +axis[1]
-        }
-        dispatch(setCurrentTile(payload))
-    }
+    const currentTile = useSelector(state => state.currentTile)
     const board = useSelector(state => state.board)
     const indexBoard = useSelector(state => state.indexBoard)
     const checkIndexBoard = (index) => {
@@ -53,15 +46,13 @@ export default function Board(props) {
                     style.backgroundColor = 'white'
                     disabled = true
                 }
-                tilesTemp.push(<TouchableOpacity disabled={disabled} onPress={(event) => {event.preventDefault(); handlePress(`${i},${j}`)}} style={style} key={`${i},${j}`}>
-                    <Text style={styles.text}>{board[i][j]}</Text>
-                    </TouchableOpacity>)
+                tilesTemp.push(<Tile disabled={disabled} style={style} key={`${i},${j}`} index={`${i},${j}`} value={board[i][j]} text={styles.text}></Tile>)
             }
         }
         setTiles(tilesTemp)
     }, [board])
     return ( 
-        <View style={styles.container}>{ isLoading ? <Layout style={styles.container}><Spinner style={{ alignSelf: 'center', justifySelf: 'center' }} size='giant'/></Layout> : tiles }</View>
+        <View style={styles.container}>{ isLoading ? <Layout style={styles.container}><Spinner style={{ alignSelf: 'center' }} size='giant'/></Layout> : tiles }</View>
     )
 }
 
@@ -74,7 +65,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: 1,
+        paddingTop: 8,
         marginBottom: 5
     },
     text: {

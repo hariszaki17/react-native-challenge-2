@@ -1,28 +1,65 @@
-import React, { useState } from 'react'
-import { Modal, Card, Button } from '@ui-kitten/components'
+import React, { useState, useEffect } from 'react'
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native'
 import { useSelector, useDispatch } from "react-redux"
-import { solveBoard, answerBoard, fetchBoard } from "../../store/actions"
+import { solveBoard, answerBoard, fetchBoard, setFirstTouch, count, setNotification, setAnswered } from "../../store/actions"
+import ModalNotification from '../ModalNotification/ModalNotification'
 
 export default OptionList = ({ navigation }) => {
     const dispatch = useDispatch()
-    const [ visible, setVisible ] = useState(false)
+    const [ answeredState, setAnsweredState ] = useState(false)
+    const [ validate, setValidate ] = useState(false)
     const difficulty = useSelector(state => state.difficulty)
+    const loading = useSelector(state => state.fetchBoardLoading)
     const board = useSelector(state => state.board)
-    const boardBase = useSelector(state => state.boardBase)
     const status = useSelector(state => state.status)
+    const boardBase = useSelector(state => state.boardBase)
+
+    useEffect(() => {
+        setValidate(false)
+        setAnsweredState(false)
+        dispatch(setAnswered(false))
+        dispatch(setNotification(false))
+    }, [dispatch])
+    
+    useEffect(() => {
+        if (status == 'unsolved' && !loading && validate) {
+            setValidate(false)
+            dispatch(setNotification(true))
+        } else if (status == 'solved' && !loading && validate) {
+            setValidate(false)
+            navigation.replace('Finish')
+        }
+    }, [dispatch, status, validate, loading])
+
     const solve = () => {
-        console.log('test')
-        setVisible(true)
-        dispatch(solveBoard(board))
+        if (!loading) {
+            console.log(status)
+            console.log('test')
+            if (!answeredState) {
+                const boardSolve = { board: board }
+                dispatch(solveBoard(boardSolve))
+                setValidate(true)
+            } else {
+                dispatch(setNotification(true))
+            }
+        }
     }
     const answer = () => {
-        console.log(boardBase, '<<<<<<<<<<<<<<<<<<<<<<<<<')
-        setVisible(true)
-        dispatch(answerBoard(boardBase))
+        if (!loading) {
+            console.log(boardBase, '<<<<<<<<<<<<<<<<<<<<<<<<<')
+            dispatch(setAnswered(true))
+            dispatch(answerBoard(boardBase))
+            setAnsweredState(true)
+        }
     }
     const reset = () => {
-        dispatch(fetchBoard(difficulty))
+        if (!loading) {
+            dispatch(setAnswered(false))
+            dispatch(setFirstTouch(false))
+            dispatch(count('off'))
+            dispatch(fetchBoard(difficulty))
+            setAnsweredState(false)
+        }
     }
 
     return (
@@ -36,22 +73,7 @@ export default OptionList = ({ navigation }) => {
             <TouchableOpacity onPress={reset} style={styles.btnSolve}>
                 <Text style={styles.text}>Reset</Text>
             </TouchableOpacity>
-            <Modal
-                visible={visible}
-                backdropStyle={styles.backdrop}
-                onBackdropPress={() => setVisible(false)}>
-                <Card disabled={true} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 30, color: 'white', margin: 5, width: '100%', textAlign: 'center' }}>{status}</Text>
-                    <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'row', margin: 5 }}>
-                        <Button style={{ margin: 2 }} onPress={() => setVisible(false)}>
-                            Try Again
-                        </Button>
-                        <Button style={{ margin: 2 }} onPress={() => {setVisible(false); navigation.navigate('Finish')}}>
-                            Next
-                        </Button>
-                    </View>
-                </Card>
-            </Modal>
+           <ModalNotification navigation={navigation}></ModalNotification>
         </View>
     )
 }
@@ -62,10 +84,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        flex: 1,
         width: '100%',
-        height: '100%',
-        marginTop: 10,
+        height: '15%',
+        marginTop: 20,
         bottom: 10,
         backgroundColor: 'white',
         borderRadius: 10,
@@ -89,7 +110,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'orange',
         margin: 5,
-        height: '60%',
+        height: '80%',
         borderRadius: 10
     },
     text: {

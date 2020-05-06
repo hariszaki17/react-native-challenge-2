@@ -6,9 +6,29 @@ export const SET_CURRENT_TILE = 'SET_CURRENT_TILE'
 export const SET_STATUS = 'SET_STATUS'
 export const SET_NAME = 'SET_NAME'
 export const SET_INDEX_BOARD = 'SET_INDEX_BOARD'
-export const SET_DIFFICULTY = 'SET_DIFFICULTY  '
-export const SET_BOARD_LOADNG = 'SET_BOARD_LOADNG  '
+export const SET_DIFFICULTY = 'SET_DIFFICULTY'
+export const SET_BOARD_LOADNG = 'SET_BOARD_LOADNG'
+export const SET_FIRST_TOUCH = 'SET_FIRST_TOUCH'
+export const SET_COUNT1 = 'SET_COUNT1'
+export const SET_COUNT2 = 'SET_COUNT2'
+export const SET_NOTIFICATION = 'SET_NOTIFICATION'
+export const SET_ANSWERED = 'SET_ANSWERED'
 
+export const setAnswered = (data) => {
+    return { type: SET_ANSWERED, payload: data }
+}
+export const setNotification = (data) => {
+    return { type: SET_NOTIFICATION, payload: data }
+}
+export const setCount1 = (data) => {
+    return { type: SET_COUNT1, payload: data }
+}
+export const setCount2 = (data) => {
+    return { type: SET_COUNT2, payload: data }
+}
+export const setFirstTouch = (data) => {
+    return { type: SET_FIRST_TOUCH, payload: data }
+}
 export const setBoardBase = (data) => {
     return { type: SET_BOARD_BASE, payload: data }
 }
@@ -34,6 +54,46 @@ export const setName = (data) => {
     return { type: SET_NAME, payload: data }
 }
 
+const encodeBoard = (board) => board.reduce((result, row, i) => result + `%5B${encodeURIComponent(row)}%5D${i === board.length -1 ? '' : '%2C'}`, '')
+
+const encodeParams = (params) => 
+  Object.keys(params)
+  .map(key => key + '=' + `%5B${encodeBoard(params[key])}%5D`)
+  .join('&');
+
+let setInt
+export const count = (tag) => {
+    clearInterval(setInt)
+    return ((dispatch) => {
+        if (tag == 'on') {
+            let sec = 59
+            let min = 4
+            setInt = setInterval(() => {
+                sec--
+                if (sec >= 0) {
+                    dispatch(setCount1(sec))
+                }
+                if (sec < 0) {
+                    if (min < 1) {
+                        clearInterval(setInt)
+                        dispatch(setCount1(59))
+                        dispatch(setCount2(4))
+                    } else {
+                        sec = 59
+                        dispatch(setCount1(sec))
+                        min--
+                        dispatch(setCount2(min))
+                    }
+                }
+            }, 1000);
+        } else if (tag == 'off') {
+            clearInterval(setInt)
+            dispatch(setCount1(59))
+            dispatch(setCount2(4))
+        }
+    })
+}
+
 export const fetchBoard = (diificulty) => {
         return ((dispatch) => {
             dispatch(setBoardLoading(true))
@@ -43,6 +103,7 @@ export const fetchBoard = (diificulty) => {
             })
             .then((result) => {
                 console.log('haiii <<<<<<<<<<<<<<<<<<<')
+                console.log(result.data)
                 let temp = []
                 let indexBoard = []
                 for (let i = 0; i < result.data.board.length; i++) {
@@ -54,11 +115,12 @@ export const fetchBoard = (diificulty) => {
                         temp[i][j] = result.data.board[i][j]
                     }
                 }
-                const data = result.data.board
                 dispatch(setIndexBoard(indexBoard))
                 dispatch(setBoardBase({ board: temp }))
                 dispatch(setBoard(result.data.board))
-                dispatch(setStatus('-'))
+                dispatch(count('on'))
+                dispatch(setStatus('unsolved'))
+                // dispatch(answerBoard({ board: temp }))
             })
             .catch((err) => {
                 console.log(err)
@@ -71,30 +133,30 @@ export const fetchBoard = (diificulty) => {
 
 export const solveBoard = (payload) => {
     return ((dispatch) => {
+        dispatch(setBoardLoading(true))
         axios({
             method: 'POST',
-            data: payload,
+            data: encodeParams(payload),
             url: 'https://sugoku.herokuapp.com/validate'
         })
         .then((result) => {
             console.log(result.data)
             dispatch(setStatus(result.data.status))
+            dispatch(setBoardLoading(false))
         })
         .catch((err) => {
             console.log(err)
         })
+        .finally(() => {
+            dispatch(setBoardLoading(false))
+        })
     })
 }
 
-const encodeBoard = (board) => board.reduce((result, row, i) => result + `%5B${encodeURIComponent(row)}%5D${i === board.length -1 ? '' : '%2C'}`, '')
-
-const encodeParams = (params) => 
-  Object.keys(params)
-  .map(key => key + '=' + `%5B${encodeBoard(params[key])}%5D`)
-  .join('&');
-
 export const answerBoard = (payload) => {
     return ((dispatch) => {
+        dispatch(count('off'))
+        dispatch(setBoardLoading(true))
         axios({
             method: 'POST',
             data: encodeParams(payload),
@@ -103,10 +165,14 @@ export const answerBoard = (payload) => {
         .then((result) => {
             console.log(result.data)
             dispatch(setBoard(result.data.solution))
-            dispatch(setStatus(result.data.status))
+            dispatch(setBoardLoading(false))
+
         })
         .catch((err) => {
             console.log(err)
+        })
+        .finally(() => {
+            dispatch(setBoardLoading(false))
         })
     })
 }

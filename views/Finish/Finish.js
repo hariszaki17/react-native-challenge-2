@@ -1,11 +1,13 @@
 import React from 'react';
-import { SafeAreaView, ImageBackground, Text } from 'react-native';
-import { Button, Layout } from '@ui-kitten/components';
-import { useDispatch, useSelector } from 'react-redux'
+import { SafeAreaView, ImageBackground, Text, StyleSheet } from 'react-native';
+import { Button, Layout, Spinner } from '@ui-kitten/components';
+import { useSelector } from 'react-redux'
+import { setFirstTouch } from "../../store/actions";
 import constants from 'expo-constants'
 
 export default Finish = ({ navigation }) => {
     const winStatus = useSelector(state => state.status)
+    const loading = useSelector(state => state.fetchBoardLoading)
     let image = {}
     let message = ''
     if ( winStatus == 'solved' ) {
@@ -18,22 +20,31 @@ export default Finish = ({ navigation }) => {
     
     return (
         <SafeAreaView style={{ flex: 1 }}>
-        <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: constants.statusBarHeight }}>
-            <Layout style={{ flex: 2 }}>
-                <ImageBackground 
-                    source={image}
-                    style={{ 
-                        flex: 1,
-                        width: 300, height: 300
-                    }}
-                >
-                </ImageBackground>
+            { loading ? 
+            <Layout style={styles.container}><Spinner style={{ alignSelf: 'center' }} size='giant'/></Layout>
+            :
+            <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: constants.statusBarHeight*5 }}>
+                <Layout style={{ flex: 2 }}>
+                    <ImageBackground 
+                        source={image}
+                        style={{ 
+                            flex: 1,
+                            width: 300, height: 300
+                        }}
+                    >
+                    </ImageBackground>
+                </Layout>
+                <Layout style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 30, fontFamily: 'font1', color: 'white' }}>{message}</Text>
+                    <Button onPress={() => {setFirstTouch(false); navigation.replace('Home')}} style={{ marginBottom: 20 }}>Go Home</Button>
+                </Layout>
             </Layout>
-            <Layout style={{ flex: 1 }}>
-                <Text style={{ fontSize: 30, fontFamily: 'font1', color: 'white' }}>{message}</Text>
-                <Button onPress={() => navigation.navigate('Home')} style={{ marginBottom: 20 }}>Go Home</Button>
-            </Layout>
-        </Layout>
+        }
+            
         </SafeAreaView>
     );
 };
+
+const styles = StyleSheet.create({
+    container: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: constants.statusBarHeight*3 }
+});

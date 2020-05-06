@@ -5,13 +5,17 @@ import { setBoard } from "../../store/actions";
 
 export default ButtonList = (props) => {
     const dispatch = useDispatch()
+    const loading = useSelector(state => state.fetchBoardLoading)
+    const firstTouch = useSelector(state => state.firstTouch)
     const items = [ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' ]
     const currentTile = useSelector((state) => state.currentTile)
     const board = useSelector((state) => state.board)
     const handlePress = (index) => {
-        let boardTemp = [...board]
-        boardTemp[currentTile.x][currentTile.y] = index
-        dispatch(setBoard(boardTemp))
+        if ( firstTouch && !loading) {
+            let boardTemp = [...board]
+            boardTemp[currentTile.x][currentTile.y] = index
+            dispatch(setBoard(boardTemp))
+        }
     }
     return (
         <View style={styles.container}>

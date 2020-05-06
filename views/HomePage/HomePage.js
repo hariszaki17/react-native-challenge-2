@@ -15,7 +15,7 @@ export default HomeScreen = ({ navigation }) => {
             dispatch(setName(value))
             dispatch(setDifficulty(data))
             setValue('')
-            navigation.navigate('Game');
+            navigation.replace('Game');
         }
     };
 
