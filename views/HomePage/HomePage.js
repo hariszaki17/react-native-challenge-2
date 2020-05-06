@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ImageBackground, Text } from 'react-native';
 import { Button, Layout, Input } from '@ui-kitten/components';
 import { useDispatch } from 'react-redux'
-import { setName, setDifficulty } from "../../store/actions";
+import { setName, setDifficulty, count } from "../../store/actions";
 import constants from 'expo-constants'
 
 export default HomeScreen = ({ navigation }) => {
@@ -10,6 +10,9 @@ export default HomeScreen = ({ navigation }) => {
     const image = { uri: 'https://cdn2.iconfinder.com/data/icons/minimalism/512/Sudoku.png'};
     const [ value, setValue ] = useState('');
     const [ difficulty ] = useState([ 'easy', 'medium', 'hard', 'random' ]);
+    useEffect(() => {
+        dispatch(count('off'))
+    }, [dispatch])
     const navigateGame = (data) => {
         if ( value !=='' ) {
             dispatch(setName(value))

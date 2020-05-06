@@ -11,7 +11,8 @@ import {
     SET_COUNT1, 
     SET_COUNT2, 
     SET_NOTIFICATION,
-    SET_ANSWERED } from "../actions";
+    SET_ANSWERED,
+    SET_LEADERBOARD } from "../actions";
 
 const initialState = {
     board: [],
@@ -29,7 +30,13 @@ const initialState = {
     count1: 59,
     count2: 4,
     notification: false,
-    answered: false
+    answered: false,
+    leaderBoard: [
+        {
+            name: 'joko',
+            description: 'Time Remaining 1:30'
+        }
+    ]
 }
 
 const reducer = (state = initialState, action) => {
@@ -60,6 +67,8 @@ const reducer = (state = initialState, action) => {
         return { ...state, notification: payload }
     } else if ( type === SET_ANSWERED ) {
         return { ...state, answered: payload }
+    } else if ( type === SET_LEADERBOARD ) {
+        return { ...state, leaderBoard: payload }
     }
     return state
 }

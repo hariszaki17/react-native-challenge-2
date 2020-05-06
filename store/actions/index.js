@@ -13,7 +13,11 @@ export const SET_COUNT1 = 'SET_COUNT1'
 export const SET_COUNT2 = 'SET_COUNT2'
 export const SET_NOTIFICATION = 'SET_NOTIFICATION'
 export const SET_ANSWERED = 'SET_ANSWERED'
+export const SET_LEADERBOARD = 'SET_LEADERBOARD'
 
+export const setLeaderBoard = (data) => {
+    return { type: SET_LEADERBOARD, payload: data }
+}
 export const setAnswered = (data) => {
     return { type: SET_ANSWERED, payload: data }
 }
